@@ -38,3 +38,4 @@ OpenCode V2 TUI plugin. It draws fenced code blocks in a box so they stand apart
 - `src/languages.ts` - Default language list and `resolveLanguages`, which applies the `languages` option and drops `mermaid`, `latex`, `math`. Duplicate registrations are skipped by the try/catch in `src/tui.ts`, since the API has no renderer lookup
 - `src/render.tsx` - Boxed wrapper around `defaultRender()`. JSX compiles under OpenCode's bundled `@opentui/solid`
 - `test/` - Jest test suites
+- `.githooks/pre-commit` - Rejects staged secrets (`gitleaks`) and personal paths (`grep`). Enable with `git config core.hooksPath .githooks`

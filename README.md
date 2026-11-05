@@ -14,7 +14,7 @@ Add the path to `plugins` in `~/.config/opencode/opencode.jsonc`, then restart t
 
 ```jsonc
 "plugins": [
-  "~/workspace/opencode-plugins/opencode-copy-code"
+  "/path/to/opencode-copy-code"
 ]
 ```
 
@@ -34,3 +34,11 @@ A language that another plugin already registered is skipped, and the failure is
 npm run typecheck
 npm test
 ```
+
+A pre-commit hook blocks staged secrets (via [gitleaks](https://github.com/gitleaks/gitleaks)) and personal paths (via `grep`). Enable it once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+Without `gitleaks` installed, the hook warns and skips the secret scan.

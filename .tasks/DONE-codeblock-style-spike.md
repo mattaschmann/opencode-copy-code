@@ -2,7 +2,7 @@
 
 ## Context
 
-OpenCode V2 draws fenced code blocks the same as surrounding prose, so a copied commit message is hard to tell apart from the text around it. The commit-message skill now asks for a ```` ```text ```` fence (`~/workspace/dotfiles/ai/skills/commit-message/SKILL.md`), which fixes the fence but not the look.
+OpenCode V2 draws fenced code blocks the same as surrounding prose, so a copied commit message is hard to tell apart from the text around it. The commit-message skill now asks for a ```` ```text ```` fence (the user's `commit-message` skill), which fixes the fence but not the look.
 
 ## Findings
 

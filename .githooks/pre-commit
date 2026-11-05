@@ -1,0 +1,19 @@
+#!/bin/sh
+# Blocks commits that stage secrets or personal paths. Enable: git config core.hooksPath .githooks
+status=0
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --staged --no-banner --redact || status=1
+else
+  echo "pre-commit: gitleaks not installed, skipping secret scan" >&2
+fi
+
+pattern='/Users/[A-Za-z0-9._-]+|/home/[A-Za-z0-9._-]+|~/workspace'
+hits=$(git diff --cached -U0 --no-color -- . ':(exclude).githooks' | grep -nE "^\+[^+].*($pattern)")
+if [ -n "$hits" ]; then
+  echo "pre-commit: personal path in staged changes:" >&2
+  echo "$hits" >&2
+  status=1
+fi
+
+exit $status
