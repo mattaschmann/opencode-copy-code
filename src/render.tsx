@@ -2,6 +2,10 @@ import type { MarkdownCodeBlockRenderer, Renderable } from '@opentui/core'
 import type { JSX } from '@opentui/solid'
 import type { Plugin } from '@opencode/plugin/tui'
 
+// Layout copied from OpenCode's tool-output panels: the panel starts in the gutter left of
+// the prose column and pads the code back, so code text lines up with the prose.
+const PANEL = { gutter: 3, vertical: 1, right: 1 } as const
+
 // JSX compiles under OpenCode's bundled @opentui/solid, so the box comes from the
 // host's @opentui/core. Importing BoxRenderable here would load a second copy.
 export function boxedRenderer(context: Plugin.Context): MarkdownCodeBlockRenderer {
@@ -15,7 +19,16 @@ export function boxedRenderer(context: Plugin.Context): MarkdownCodeBlockRendere
     code.bg = fill
     code.marginTop = 0
     return (
-      <box shouldFill backgroundColor={fill} paddingLeft={1} paddingRight={1} flexDirection="column">
+      <box
+        shouldFill
+        backgroundColor={fill}
+        marginLeft={-PANEL.gutter}
+        paddingLeft={PANEL.gutter}
+        paddingRight={PANEL.right}
+        paddingTop={PANEL.vertical}
+        paddingBottom={PANEL.vertical}
+        flexDirection="column"
+      >
         {inner as unknown as JSX.Element}
       </box>
     ) as unknown as Renderable
