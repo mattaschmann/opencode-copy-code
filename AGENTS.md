@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-OpenCode V2 TUI plugin. It draws fenced code blocks in a box so they stand apart from prose, and (planned) copies a code block from the latest assistant reply. Shipped as TypeScript source, loaded directly by OpenCode. No build step.
+OpenCode V2 TUI plugin. It draws fenced code blocks in a box so they stand apart from prose, and copies a code block from recent assistant replies with `<leader>k`. Shipped as TypeScript source, loaded directly by OpenCode. No build step.
 
 ## Do
 
@@ -10,6 +10,8 @@ OpenCode V2 TUI plugin. It draws fenced code blocks in a box so they stand apart
 - Use `@opencode/plugin` (V2) for type definitions and `Plugin.define`
 - Register renderers only for languages in the configured list; never register `mermaid`, `latex`, or `math`
 - Import `@opentui/*` and `solid-js` as types only; they are type-only dev dependencies. A runtime import loads a second copy of OpenTUI and crashes the TUI (`remove expects a renderable child object`)
+- Set `mode: 'global'` on `context.keymap.layer`. The default `base` mode keeps the command out of the command palette, and the key may not fire
+- Write capital-letter keys as `shift+<key>`; OpenCode's keymap does not match an uppercase letter in a bind string
 - Fail quiet: log to stderr on errors, never throw from setup
 - Run `npm run typecheck` and `npm test` before presenting changes
 
@@ -28,7 +30,11 @@ OpenCode V2 TUI plugin. It draws fenced code blocks in a box so they stand apart
 ## Project Structure
 
 - `src/index.ts` - No-op server entry so OpenCode recognizes the package
-- `src/tui.ts` - `./tui` entrypoint. Registers code-block renderers and returns a cleanup
+- `src/tui.ts` - `./tui` entrypoint. Registers code-block renderers and the `opencode-copy-code.copy` command, and returns a cleanup
+- `src/options.ts` - `resolveCopyOptions`: the `keybind` (default `<leader>k`, `false` disables) and `limit` (default 4) options
+- `src/parse.ts` - `parseBlocks`: pure fence parser returning `{ lang, body }[]`
+- `src/clipboard.ts` - `copyText` tries `pbcopy`, `wl-copy`, `xclip`, then OSC52. The command runner is injected so tests can mock it
+- `src/copy.ts` - `recentBlocks` picks the newest blocks from finished assistant messages; `copyCommand` copies one directly or opens the picker
 - `src/languages.ts` - Default language list and `resolveLanguages`, which applies the `languages` option and drops `mermaid`, `latex`, `math`. Duplicate registrations are skipped by the try/catch in `src/tui.ts`, since the API has no renderer lookup
 - `src/render.tsx` - Boxed wrapper around `defaultRender()`. JSX compiles under OpenCode's bundled `@opentui/solid`
 - `test/` - Jest test suites
