@@ -8,6 +8,7 @@ Last updated: 2026-11-06
 
 | Priority | Task | State | Blocked by | Next action |
 |----------|------|-------|------------|-------------|
+| 1 | resolve-deepmerge-alert.md | Not started | No patched `deepmerge` release (4.3.1 is latest) | Check for a patched release or a newer `jest` |
 
 ## Recently Completed
 
