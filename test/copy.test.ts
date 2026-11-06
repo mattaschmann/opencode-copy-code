@@ -1,6 +1,8 @@
-import { describe, it, expect } from '@jest/globals'
+import { describe, it, expect, jest } from '@jest/globals'
 import type { SessionMessageInfo } from '@opencode/client'
-import { recentBlocks } from '../src/copy.js'
+import type { Plugin } from '@opencode/plugin/tui'
+import { copyBlock, recentBlocks } from '../src/copy.js'
+import type { Run } from '../src/clipboard.js'
 
 type Assistant = {
   type: 'assistant'
@@ -60,5 +62,30 @@ describe('recentBlocks', () => {
     const [many] = recentBlocks([assistant([text('```\na\nb\nc\n```')])], 1)
     expect(one?.description).toBe('text · 1 line')
     expect(many?.description).toBe('plain · 3 lines')
+  })
+})
+
+describe('copyBlock', () => {
+  function stubContext(osc52Ok: boolean) {
+    const toasts: Array<{ variant: string; message: string }> = []
+    const context = {
+      renderer: { copyToClipboardOSC52: jest.fn(() => osc52Ok) },
+      ui: { toast: { show: (t: { variant: string; message: string }) => toasts.push(t) } }
+    } as unknown as Plugin.Context
+    return { context, toasts }
+  }
+
+  it('sends the body to the runner and reports the line count', async () => {
+    const { context, toasts } = stubContext(false)
+    const run = jest.fn<Run>(async () => true)
+    await copyBlock(context, 'a\nb\nc', run)
+    expect(run).toHaveBeenCalledWith('pbcopy', [], 'a\nb\nc')
+    expect(toasts).toEqual([{ variant: 'success', message: 'Copied 3 lines' }])
+  })
+
+  it('shows an error toast when every method fails', async () => {
+    const { context, toasts } = stubContext(false)
+    await copyBlock(context, 'x', jest.fn<Run>(async () => false))
+    expect(toasts).toEqual([{ variant: 'error', message: 'Could not copy to the clipboard.' }])
   })
 })

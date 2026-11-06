@@ -4,6 +4,8 @@ OpenCode V2 TUI plugin. It draws fenced code blocks on a filled panel so they st
 
 ## Copy a code block
 
+Each styled block also has a dim `⧉` button in its top-right corner. Clicking it copies that block's body and shows the same toast as the command.
+
 Press `<leader>k`, or run **Copy code block** from the command palette, inside a session. The command looks at the newest code blocks in finished assistant replies. With one block it copies the block body at once. With several it opens a picker, newest first, and each row shows the first line plus the language and line count. The copy has no fence lines or language tag.
 
 The clipboard tools are tried in this order: `pbcopy`, `wl-copy`, `xclip`, then OSC52, so copying also works over SSH and inside tmux.

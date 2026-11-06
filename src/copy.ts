@@ -1,12 +1,11 @@
 import type { SessionMessageInfo } from '@opencode/client'
 import type { Plugin } from '@opencode/plugin/tui'
 import { parseBlocks, type CodeBlock } from './parse.js'
-import { copyText, runCommand } from './clipboard.js'
+import { copyText, runCommand, type Run } from './clipboard.js'
 
 export interface BlockChoice {
   title: string
   description: string
-  lines: number
   block: CodeBlock
 }
 
@@ -22,7 +21,7 @@ export function recentBlocks(messages: readonly SessionMessageInfo[], limit: num
       .map((part) => part.text)
       .join('\n')
     for (const block of [...parseBlocks(text)].reverse()) {
-      choices.push({ title: titleOf(block), description: describe(block), lines: countLines(block), block })
+      choices.push({ title: titleOf(block), description: describe(block), block })
       if (choices.length >= limit) return choices
     }
   }
@@ -49,15 +48,20 @@ export async function copyCommand(context: Plugin.Context, limit: number): Promi
           }))
         })
   if (!picked) return
-  const method = await copyText(picked.block.body, {
-    run: runCommand,
+  await copyBlock(context, picked.block.body)
+}
+
+// Copies a block body and reports the result in a toast. Shared by the command and the in-block button.
+export async function copyBlock(context: Plugin.Context, body: string, run: Run = runCommand): Promise<void> {
+  const method = await copyText(body, {
+    run,
     osc52: (text) => context.renderer.copyToClipboardOSC52(text)
   })
   if (!method) {
     context.ui.toast.show({ variant: 'error', message: 'Could not copy to the clipboard.' })
     return
   }
-  context.ui.toast.show({ variant: 'success', message: `Copied ${lineCount(picked.lines)}` })
+  context.ui.toast.show({ variant: 'success', message: `Copied ${lineCount(countLines(body))}` })
 }
 
 function lineCount(count: number): string {
@@ -69,11 +73,11 @@ function titleOf(block: CodeBlock): string {
   return line.length > TITLE_MAX ? `${line.slice(0, TITLE_MAX - 1)}…` : line
 }
 
-function countLines(block: CodeBlock): number {
-  return block.body === '' ? 0 : block.body.split('\n').length
+function countLines(body: string): number {
+  return body === '' ? 0 : body.split('\n').length
 }
 
 function describe(block: CodeBlock): string {
-  const lines = countLines(block)
+  const lines = countLines(block.body)
   return `${block.lang || 'plain'} · ${lineCount(lines)}`
 }

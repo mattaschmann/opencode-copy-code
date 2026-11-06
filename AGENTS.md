@@ -34,8 +34,8 @@ OpenCode V2 TUI plugin. It draws fenced code blocks in a box so they stand apart
 - `src/options.ts` - `resolveCopyOptions`: the `keybind` (default `<leader>k`, `false` disables) and `limit` (default 4) options
 - `src/parse.ts` - `parseBlocks`: pure fence parser returning `{ lang, body }[]`
 - `src/clipboard.ts` - `copyText` tries `pbcopy`, `wl-copy`, `xclip`, then OSC52. The command runner is injected so tests can mock it
-- `src/copy.ts` - `recentBlocks` picks the newest blocks from finished assistant messages; `copyCommand` copies one directly or opens the picker
+- `src/copy.ts` - `recentBlocks` picks the newest blocks from finished assistant messages; `copyCommand` copies one directly or opens the picker; `copyBlock` copies a body and shows the toast (shared with the in-block button)
 - `src/languages.ts` - Default language list and `resolveLanguages`, which applies the `languages` option and drops `mermaid`, `latex`, `math`. Duplicate registrations are skipped by the try/catch in `src/tui.ts`, since the API has no renderer lookup
-- `src/render.tsx` - Boxed wrapper around `defaultRender()`. JSX compiles under OpenCode's bundled `@opentui/solid`
+- `src/render.tsx` - Boxed wrapper around `defaultRender()`, with a `⧉` button that calls `copyBlock`. JSX compiles under OpenCode's bundled `@opentui/solid`
 - `test/` - Jest test suites
 - `.githooks/pre-commit` - Rejects staged secrets (`gitleaks`) and personal paths (`grep`). Enable with `git config core.hooksPath .githooks`
